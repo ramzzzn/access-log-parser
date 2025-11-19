@@ -15,7 +15,7 @@ public class Main {
                 System.out.println("Такого файла не существует");
                 continue;
             }
-            if (isDirectory) {
+            else if (isDirectory) {
                 System.out.println("Это путь к папке, а не к файлу");
                 continue;
             }
