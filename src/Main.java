@@ -11,19 +11,17 @@ public class Main {
             File file = new File(path);
             boolean fileExists = file.exists();
             boolean isDirectory = file.isDirectory();
-            if (!fileExists){
+            if (!fileExists) {
                 System.out.println("Такого файла не существует");
                 continue;
             }
-            else if (isDirectory){
+            else if (isDirectory) {
                 System.out.println("Это путь к папке, а не к файлу");
                 continue;
             }
-            else {
-                fileCount++;
-                System.out.println("Путь указан верно");
-                System.out.println("Это файл номер " + fileCount);
-            }
+            fileCount++;
+            System.out.println("Путь указан верно");
+            System.out.println("Это файл номер " + fileCount);
         }
     }
 }
