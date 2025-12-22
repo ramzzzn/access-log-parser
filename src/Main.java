@@ -51,7 +51,7 @@ public class Main {
                 System.out.println("Минимальная длина строки: " + min);
             } catch (TooLongLineException e) {
                 System.err.println(e.getMessage());
-                return;
+                break;
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
