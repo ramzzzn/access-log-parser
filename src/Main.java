@@ -1,7 +1,11 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Main {
     public static void main(String[] args) {
@@ -29,26 +33,52 @@ public class Main {
                 BufferedReader reader =
                         new BufferedReader(fileReader);
                 String line;
-                int count = 0;
-                int max = 0;
-                int min = Integer.MAX_VALUE;
+                int countAllRequests = 0;
+                int countYandexBot = 0;
+                int countGoogleBot = 0;
+                String regex = "^(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+\\[(.*?)]\\s+\"(\\w+)\\s+([^\"]+)\"\\s+(\\d{3})\\s+(\\d+)\\s+\"([^\"]*)\"\\s+\"([^\"]*)\"";
+                Pattern pattern = Pattern.compile(regex);
                 while ((line = reader.readLine()) != null) {
-                    count++;
+                    Matcher matcher = pattern.matcher(line);
+                    countAllRequests++;
                     int length = line.length();
                     if (length > 1024) {
                         throw new TooLongLineException("В файле содержится строка длиннее 1024 символов. " +
                                 "Пожалуйста, исправьте файл и попробуйте снова.");
                     }
-                    if (length > max) {
-                        max = length;
-                    }
-                    if (length < min) {
-                        min = length;
+                    if (matcher.matches()) {
+                        String userAgent = matcher.group(10);
+                        Pattern patternBrackets = Pattern.compile("\\([^)]*\\)");
+                        Matcher matcherBrackets = patternBrackets.matcher(userAgent);
+                        List<String> brackets = new ArrayList<>();
+                        while (matcherBrackets.find()) {
+                            brackets.add(matcherBrackets.group());
+                        }
+                        if (!brackets.isEmpty()) {
+                            String lastBrackets = brackets.get(brackets.size() - 1);
+                            String[] parts = lastBrackets.split(";");
+                            List<String> fragmentsList = new ArrayList<>();
+                            for (String part : parts) {
+                                fragmentsList.add(part.trim());
+                            }
+                            if (fragmentsList.size() >= 2) {
+                                String fragment = fragmentsList.get(1);
+                                String[] fragmentParts = fragment.split("/");
+                                String botName = fragmentParts[0];
+                                if (botName.equals("YandexBot")) {
+                                    countYandexBot++;
+                                }
+                                if (botName.equals("Googlebot")) {
+                                    countGoogleBot++;
+                                }
+                            }
+                        }
                     }
                 }
-                System.out.println("Количество строк в файле: " + count);
-                System.out.println("Максимальная длина строки: " + max);
-                System.out.println("Минимальная длина строки: " + min);
+                double percentageYandexBot = (countYandexBot * 100.0) / countAllRequests;
+                double percentageGoogleBot = (countGoogleBot * 100.0) / countAllRequests;
+                System.out.println("Доля запросов YandexBot от общего числа: " + String.format("%.3f", percentageYandexBot) + "%");
+                System.out.println("Доля запросов Googlebot от общего числа: " + String.format("%.3f", percentageGoogleBot) + "%");
             } catch (TooLongLineException e) {
                 System.err.println(e.getMessage());
                 break;
