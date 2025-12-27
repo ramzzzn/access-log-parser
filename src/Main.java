@@ -36,8 +36,18 @@ public class Main {
                 int countAllRequests = 0;
                 int countYandexBot = 0;
                 int countGoogleBot = 0;
-                String regex = "^(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+\\[(.*?)]\\s+\"(\\w+)\\s+([^\"]+)\"\\s+(\\d{3})\\s+(\\d+)\\s+\"([^\"]*)\"\\s+\"([^\"]*)\"";
-                Pattern pattern = Pattern.compile(regex);
+                String ipRegex = "^(\\S+)\\s+";
+                String emptyFieldsRegex = "(\\S+)\\s+(\\S+)\\s+";
+                String dateTimeRegex = "\\[(.*?)]\\s+";
+                String methodRegex = "\"(\\w+)\\s+";
+                String urlRegex = "([^\"]+)\"\\s+";
+                String codeRegex = "(\\d{3})\\s+";
+                String sizeRegex = "(\\d+)\\s+";
+                String dashRegex = "\"([^\"]*)\"\\s+";
+                String userAgentRegex = "\"([^\"]*)\"";
+                String resultRegex = ipRegex + emptyFieldsRegex + dateTimeRegex + methodRegex
+                        + urlRegex + codeRegex + sizeRegex + dashRegex + userAgentRegex;
+                Pattern pattern = Pattern.compile(resultRegex);
                 while ((line = reader.readLine()) != null) {
                     Matcher matcher = pattern.matcher(line);
                     countAllRequests++;
