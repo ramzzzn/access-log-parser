@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LogEntry {
+
     private String ipAddr;
     private LocalDateTime dateTime;
     private HttpMethod method;
@@ -97,8 +98,4 @@ public class LogEntry {
     public boolean isValid() {
         return valid;
     }
-}
-
-enum HttpMethod {
-    GET, POST, PUT, DELETE
 }

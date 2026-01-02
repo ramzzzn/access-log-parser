@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.util.Scanner;
 
 public class Main {
+
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         int fileCount = 0;
@@ -42,7 +43,7 @@ public class Main {
                         statistics.addEntry(parsedLine);
                     }
                 }
-                System.out.println(statistics.getTrafficRate());
+                System.out.println("Объем часового трафика = " + statistics.getTrafficRate());
             } catch (TooLongLineException e) {
                 System.err.println(e.getMessage());
                 break;

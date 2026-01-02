@@ -1,4 +1,5 @@
 public class UserAgent {
+
     OsType osType;
     BrowserType browserType;
 
@@ -14,7 +15,6 @@ public class UserAgent {
         if (userAgent.contains("Mac OS X")) {
             return OsType.MACOS;
         }
-
         if ((userAgent.contains("Linux")) && !(userAgent.contains("Android"))) {
             return OsType.LINUX;
         }
@@ -42,49 +42,3 @@ public class UserAgent {
         return "UserAgent{" + osType + ", " + browserType + '}';
     }
 }
-
-enum OsType {
-    WINDOWS("Windows"),
-    MACOS("macOS"),
-    LINUX("Linux"),
-    ANOTHER("Another OS");
-
-    private final String name;
-
-    OsType(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String toString() {
-        return name;
-    }
-}
-
-enum BrowserType {
-    CHROME("Chrome"),
-    FIREFOX("Firefox"),
-    EDGE("Edge"),
-    OPERA("Opera"),
-    ANOTHER("Another browser");
-
-    private final String name;
-
-    BrowserType(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String toString() {
-        return name;
-    }
-}
-

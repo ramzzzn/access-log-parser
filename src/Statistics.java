@@ -1,11 +1,24 @@
 import java.time.LocalDateTime;
 
 public class Statistics {
+
     private int totalTraffic;
     private LocalDateTime minTime;
     private LocalDateTime maxTime;
 
     public Statistics() {
+    }
+
+    public int getTotalTraffic() {
+        return totalTraffic;
+    }
+
+    public LocalDateTime getMinTime() {
+        return minTime;
+    }
+
+    public LocalDateTime getMaxTime() {
+        return maxTime;
     }
 
     public void addEntry(LogEntry logEntry) {
