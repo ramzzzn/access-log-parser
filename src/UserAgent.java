@@ -37,6 +37,14 @@ public class UserAgent {
         return BrowserType.ANOTHER;
     }
 
+    public OsType getOsType() {
+        return osType;
+    }
+
+    public BrowserType getBrowserType() {
+        return browserType;
+    }
+
     @Override
     public String toString() {
         return "UserAgent{" + osType + ", " + browserType + '}';
