@@ -43,8 +43,10 @@ public class Main {
                     }
                 }
                 System.out.println("Объем часового трафика = " + statistics.getTrafficRate());
-                System.out.println("Список существующих страниц сайта " + statistics.getExistPages());
+                System.out.println("Список несуществующих страниц сайта " + statistics.getNotExistPages());
                 System.out.println("Статистика по операционным системам " + statistics.getOsStatistics());
+                System.out.println("Статистика по браузерам " + statistics.getBrowsersStatistics());
+
             } catch (TooLongLineException e) {
                 System.err.println(e.getMessage());
                 break;

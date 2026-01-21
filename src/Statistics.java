@@ -10,7 +10,9 @@ public class Statistics {
     private LocalDateTime minTime;
     private LocalDateTime maxTime;
     private final HashSet<String> existPages = new HashSet<>();
+    private final HashSet<String> notExistPages = new HashSet<>();
     private final HashMap<String, Integer> osCount = new HashMap<>();
+    private final HashMap<String, Integer> browserCount = new HashMap<>();
 
     public Statistics() {
     }
@@ -28,11 +30,21 @@ public class Statistics {
     }
 
     public void addEntry(LogEntry logEntry) {
+        OsType os = logEntry.getUserAgent().getOsType();
+        BrowserType browser = logEntry.getUserAgent().getBrowserType();
+
+        // Рассчитываем частоту встречаемости по каждой ОС и браузеру
+        osCount.put(os.toString(), osCount.getOrDefault(os.toString(), 0) + 1);
+        browserCount.put(browser.toString(), browserCount.getOrDefault(browser.toString(), 0) + 1);
+
+        // Создаем списки существующих и несуществующих страниц
         if (logEntry.getResponseCode() == 200) {
             existPages.add(logEntry.getPath().split(" ")[0]);
         }
-        OsType os = logEntry.getUserAgent().getOsType();
-        osCount.put(os.toString(), osCount.getOrDefault(os.toString(), 0) + 1);
+        if (logEntry.getResponseCode() == 404) {
+            notExistPages.add(logEntry.getPath().split(" ")[0]);
+        }
+
         totalTraffic += logEntry.getResponseSize();
         if (minTime == null || logEntry.getDateTime().isBefore(minTime)) {
             minTime = logEntry.getDateTime();
@@ -46,17 +58,29 @@ public class Statistics {
         return existPages;
     }
 
-    public HashMap<String, Double> getOsStatistics() {
-        HashMap<String, Double> osStats = new HashMap<>();
-        // Рассчитываем общее количество для всех операционных систем
-        int total = osCount.values().stream().mapToInt(Integer::intValue).sum();
+    public HashSet<String> getNotExistPages() {
+        return notExistPages;
+    }
 
-        // Рассчитываем долю для каждой операционной системы и записываем результат в новый HashMap
-        for (Map.Entry<String, Integer> entry : osCount.entrySet()) {
-            double osStat = Double.parseDouble(String.format(Locale.US, "%.3f", entry.getValue() * 1.0 / total));
-            osStats.put(entry.getKey(), osStat);
+    private HashMap<String, Double> getStatistics(HashMap<String, Integer> countMap) {
+        HashMap<String, Double> stats = new HashMap<>();
+        // Рассчитываем сумму значений всех ключей
+        int total = countMap.values().stream().mapToInt(Integer::intValue).sum();
+
+        // Рассчитываем долю по каждому ключу и записываем результат в новый HashMap
+        for (Map.Entry<String, Integer> entry : countMap.entrySet()) {
+            double stat = Double.parseDouble(String.format(Locale.US, "%.3f", entry.getValue() * 1.0 / total));
+            stats.put(entry.getKey(), stat);
         }
-        return osStats;
+        return stats;
+    }
+
+    public HashMap<String, Double> getOsStatistics() {
+        return getStatistics(osCount);
+    }
+
+    public HashMap<String, Double> getBrowsersStatistics() {
+        return getStatistics(browserCount);
     }
 
     public int getTrafficRate() {
