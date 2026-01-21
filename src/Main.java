@@ -39,11 +39,12 @@ public class Main {
                     }
                     LogEntry parsedLine = new LogEntry(line);
                     if (parsedLine.isValid()) {
-                        System.out.println(parsedLine.getUserAgent());
                         statistics.addEntry(parsedLine);
                     }
                 }
                 System.out.println("Объем часового трафика = " + statistics.getTrafficRate());
+                System.out.println("Список существующих страниц сайта " + statistics.getExistPages());
+                System.out.println("Статистика по операционным системам " + statistics.getOsStatistics());
             } catch (TooLongLineException e) {
                 System.err.println(e.getMessage());
                 break;
