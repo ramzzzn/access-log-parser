@@ -11,8 +11,12 @@ public class Statistics {
     private LocalDateTime maxTime;
     private final HashSet<String> existPages = new HashSet<>();
     private final HashSet<String> notExistPages = new HashSet<>();
+    private final HashSet<String> uniqueUsers = new HashSet<>();
     private final HashMap<String, Integer> osCount = new HashMap<>();
     private final HashMap<String, Integer> browserCount = new HashMap<>();
+    private int userVisitCount;
+    private int errorRequestCount;
+
 
     public Statistics() {
     }
@@ -32,6 +36,7 @@ public class Statistics {
     public void addEntry(LogEntry logEntry) {
         OsType os = logEntry.getUserAgent().getOsType();
         BrowserType browser = logEntry.getUserAgent().getBrowserType();
+        boolean isBot = logEntry.getUserAgent().isBot();
 
         // Рассчитываем частоту встречаемости по каждой ОС и браузеру
         osCount.put(os.toString(), osCount.getOrDefault(os.toString(), 0) + 1);
@@ -51,6 +56,17 @@ public class Statistics {
         }
         if (maxTime == null || logEntry.getDateTime().isAfter(maxTime)) {
             maxTime = logEntry.getDateTime();
+        }
+
+        // Подсчитываем количество посещений пользователей и список уникальных пользователей
+        if (!isBot) {
+            userVisitCount++;
+            uniqueUsers.add(logEntry.getIpAddr());
+        }
+
+        // Подсчитываем количество ошибочных запросов
+        if (logEntry.getResponseCode() >= 400 && logEntry.getResponseCode() <= 599) {
+            errorRequestCount++;
         }
     }
 
@@ -83,8 +99,27 @@ public class Statistics {
         return getStatistics(browserCount);
     }
 
+
+    public int getDurationInHours() {
+        return (int) java.time.Duration.between(minTime, maxTime).getSeconds() / 3600;
+    }
+
     public int getTrafficRate() {
-        int durationInHours = (int) java.time.Duration.between(minTime, maxTime).getSeconds() / 3600;
-        return totalTraffic / durationInHours;
+        return totalTraffic / getDurationInHours();
+    }
+
+    public double getAvgUsersVisitsCount() {
+        double avgVisits = (double) userVisitCount / getDurationInHours();
+        return Double.parseDouble(String.format(Locale.US, "%.3f", avgVisits));
+    }
+
+    public double getAvgErrorRequestCount() {
+        double avgErrors = (double) errorRequestCount / getDurationInHours();
+        return Double.parseDouble(String.format(Locale.US, "%.3f", avgErrors));
+    }
+
+    public double getAvgVisitByUser() {
+        double avgVisitByUser = (double) userVisitCount / uniqueUsers.size();
+        return Double.parseDouble(String.format(Locale.US, "%.3f", avgVisitByUser));
     }
 }

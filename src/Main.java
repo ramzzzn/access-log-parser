@@ -42,10 +42,13 @@ public class Main {
                         statistics.addEntry(parsedLine);
                     }
                 }
-                System.out.println("Объем часового трафика = " + statistics.getTrafficRate());
-                System.out.println("Список несуществующих страниц сайта " + statistics.getNotExistPages());
-                System.out.println("Статистика по операционным системам " + statistics.getOsStatistics());
-                System.out.println("Статистика по браузерам " + statistics.getBrowsersStatistics());
+                System.out.println("Объем часового трафика: " + statistics.getTrafficRate());
+                System.out.println("Список несуществующих страниц сайта: " + statistics.getNotExistPages());
+                System.out.println("Статистика по операционным системам: " + statistics.getOsStatistics());
+                System.out.println("Статистика по браузерам: " + statistics.getBrowsersStatistics());
+                System.out.println("Среднее количество посещений пользователями: " + statistics.getAvgUsersVisitsCount());
+                System.out.println("Среднее количество ошибочных запросов: " + statistics.getAvgErrorRequestCount());
+                System.out.println("Средняя посещаемость одним пользователем: " + statistics.getAvgVisitByUser());
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
