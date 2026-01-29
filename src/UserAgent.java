@@ -2,10 +2,12 @@ public class UserAgent {
 
     OsType osType;
     BrowserType browserType;
+    boolean isBot;
 
     public UserAgent(String userAgent) {
         this.osType = parseOsType(userAgent);
         this.browserType = parseBrowser(userAgent);
+        this.isBot = userAgent.toLowerCase().contains("bot");
     }
 
     private static OsType parseOsType(String userAgent) {
@@ -45,8 +47,12 @@ public class UserAgent {
         return browserType;
     }
 
+    public boolean isBot() {
+        return isBot;
+    }
+
     @Override
     public String toString() {
-        return "UserAgent{" + osType + ", " + browserType + '}';
+        return "UserAgent{" + osType + ", " + browserType + "isBot=" + isBot + "}";
     }
 }
