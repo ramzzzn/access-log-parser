@@ -11,12 +11,11 @@ public class Statistics {
     private LocalDateTime maxTime;
     private final HashSet<String> existPages = new HashSet<>();
     private final HashSet<String> notExistPages = new HashSet<>();
-    private final HashSet<String> uniqueUsers = new HashSet<>();
+    private final HashSet<String> realUserIpAddrList = new HashSet<>();
+    private int realUserVisitCount;
     private final HashMap<String, Integer> osCount = new HashMap<>();
     private final HashMap<String, Integer> browserCount = new HashMap<>();
-    private int userVisitCount;
     private int errorRequestCount;
-
 
     public Statistics() {
     }
@@ -36,7 +35,6 @@ public class Statistics {
     public void addEntry(LogEntry logEntry) {
         OsType os = logEntry.getUserAgent().getOsType();
         BrowserType browser = logEntry.getUserAgent().getBrowserType();
-        boolean isBot = logEntry.getUserAgent().isBot();
 
         // Рассчитываем частоту встречаемости по каждой ОС и браузеру
         osCount.put(os.toString(), osCount.getOrDefault(os.toString(), 0) + 1);
@@ -58,16 +56,9 @@ public class Statistics {
             maxTime = logEntry.getDateTime();
         }
 
-        // Подсчитываем количество посещений пользователей и список уникальных пользователей
-        if (!isBot) {
-            userVisitCount++;
-            uniqueUsers.add(logEntry.getIpAddr());
-        }
+        updateRealUserMetrics(logEntry);
 
-        // Подсчитываем количество ошибочных запросов
-        if (logEntry.getResponseCode() >= 400 && logEntry.getResponseCode() <= 599) {
-            errorRequestCount++;
-        }
+        updateErrorRequestCount(logEntry);
     }
 
     public HashSet<String> getExistPages() {
@@ -99,17 +90,29 @@ public class Statistics {
         return getStatistics(browserCount);
     }
 
-
     public int getDurationInHours() {
-        return (int) java.time.Duration.between(minTime, maxTime).getSeconds() / 3600;
+        return (int) java.time.Duration.between(minTime, maxTime).toHours();
     }
 
     public int getTrafficRate() {
         return totalTraffic / getDurationInHours();
     }
 
+    private void updateRealUserMetrics(LogEntry logEntry) {
+        if (!logEntry.getUserAgent().isBot) {
+            realUserVisitCount++;
+            realUserIpAddrList.add(logEntry.getIpAddr());
+        }
+    }
+
+    private void updateErrorRequestCount(LogEntry logEntry) {
+        if (logEntry.getResponseCode() >= 400 && logEntry.getResponseCode() <= 599) {
+            errorRequestCount++;
+        }
+    }
+
     public double getAvgUsersVisitsCount() {
-        double avgVisits = (double) userVisitCount / getDurationInHours();
+        double avgVisits = (double) realUserVisitCount / getDurationInHours();
         return Double.parseDouble(String.format(Locale.US, "%.3f", avgVisits));
     }
 
@@ -119,7 +122,7 @@ public class Statistics {
     }
 
     public double getAvgVisitByUser() {
-        double avgVisitByUser = (double) userVisitCount / uniqueUsers.size();
+        double avgVisitByUser = (double) realUserVisitCount / realUserIpAddrList.size();
         return Double.parseDouble(String.format(Locale.US, "%.3f", avgVisitByUser));
     }
 }
