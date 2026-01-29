@@ -1,3 +1,5 @@
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,13 +11,16 @@ public class Statistics {
     private int totalTraffic;
     private LocalDateTime minTime;
     private LocalDateTime maxTime;
+    private int errorRequestCount;
     private final HashSet<String> existPages = new HashSet<>();
     private final HashSet<String> notExistPages = new HashSet<>();
     private final HashSet<String> realUserIpAddrList = new HashSet<>();
     private int realUserVisitCount;
+    private final HashSet<String> domainNameList = new HashSet<>();
     private final HashMap<String, Integer> osCount = new HashMap<>();
     private final HashMap<String, Integer> browserCount = new HashMap<>();
-    private int errorRequestCount;
+    private final HashMap<Integer, Integer> realUserVisitCountPerSecond = new HashMap<>();
+    private final HashMap<String, Integer> realUserVisitCountPerUser = new HashMap<>();
 
     public Statistics() {
     }
@@ -57,8 +62,8 @@ public class Statistics {
         }
 
         updateRealUserMetrics(logEntry);
-
-        updateErrorRequestCount(logEntry);
+        updateErrorRequestCount(logEntry.getResponseCode());
+        addRefererDomainToList(logEntry.getReferer());
     }
 
     public HashSet<String> getExistPages() {
@@ -102,11 +107,22 @@ public class Statistics {
         if (!logEntry.getUserAgent().isBot) {
             realUserVisitCount++;
             realUserIpAddrList.add(logEntry.getIpAddr());
+            updateRealUserVisitCountPerSecond(logEntry.getDateTime());
+            updateRealUserVisitCountPerUser(logEntry.getIpAddr());
         }
     }
 
-    private void updateErrorRequestCount(LogEntry logEntry) {
-        if (logEntry.getResponseCode() >= 400 && logEntry.getResponseCode() <= 599) {
+    private void updateRealUserVisitCountPerSecond(LocalDateTime logTime) {
+        int second = (int) logTime.toEpochSecond(java.time.ZoneOffset.of("+03:00"));
+        realUserVisitCountPerSecond.put(second, realUserVisitCountPerSecond.getOrDefault(second, 0) + 1);
+    }
+
+    private void updateRealUserVisitCountPerUser(String userIpAddr) {
+        realUserVisitCountPerUser.put(userIpAddr, realUserVisitCountPerUser.getOrDefault(userIpAddr, 0) + 1);
+    }
+
+    private void updateErrorRequestCount(int responseCode) {
+        if (responseCode >= 400 && responseCode <= 599) {
             errorRequestCount++;
         }
     }
@@ -124,5 +140,35 @@ public class Statistics {
     public double getAvgVisitByUser() {
         double avgVisitByUser = (double) realUserVisitCount / realUserIpAddrList.size();
         return Double.parseDouble(String.format(Locale.US, "%.3f", avgVisitByUser));
+    }
+
+    public Map.Entry<Integer, Integer> getPeakVisitPerSecond() {
+        return realUserVisitCountPerSecond.entrySet().stream().max(Map.Entry.comparingByValue()).orElse(null);
+    }
+
+    private String extractDomainName(String url) {
+        try {
+            URL uri = new URL(url);
+            return uri.getHost();
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
+
+    private void addRefererDomainToList(String referer) {
+        if (!referer.equals("-")) {
+            String domainName = extractDomainName(referer);
+            if (domainName != null) {
+                domainNameList.add(domainName);
+            }
+        }
+    }
+
+    public HashSet<String> getDomainNameList() {
+        return domainNameList;
+    }
+
+    public Map.Entry<String, Integer> getMaxVisitPerUser() {
+        return realUserVisitCountPerUser.entrySet().stream().max(Map.Entry.comparingByValue()).orElse(null);
     }
 }
