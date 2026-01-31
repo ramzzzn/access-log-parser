@@ -27,15 +27,13 @@ public class Main {
             System.out.println("Это файл номер " + fileCount);
             try {
                 FileReader fileReader = new FileReader(path);
-                BufferedReader reader =
-                        new BufferedReader(fileReader);
+                BufferedReader reader = new BufferedReader(fileReader);
                 String line;
                 Statistics statistics = new Statistics();
                 while ((line = reader.readLine()) != null) {
                     int length = line.length();
                     if (length > 1024) {
-                        throw new TooLongLineException("В файле содержится строка длиннее 1024 символов. " +
-                                "Пожалуйста, исправьте файл и попробуйте снова.");
+                        throw new TooLongLineException("В файле содержится строка длиннее 1024 символов. " + "Пожалуйста, исправьте файл и попробуйте снова.");
                     }
                     LogEntry parsedLine = new LogEntry(line);
                     if (parsedLine.isValid()) {
@@ -49,6 +47,9 @@ public class Main {
                 System.out.println("Среднее количество посещений пользователями: " + statistics.getAvgUsersVisitsCount());
                 System.out.println("Среднее количество ошибочных запросов: " + statistics.getAvgErrorRequestCount());
                 System.out.println("Средняя посещаемость одним пользователем: " + statistics.getAvgVisitByUser());
+                System.out.println("Пиковая посещаемость в секунду: " + statistics.getCountOfPeakVisitPerSecond() + ", время пиковой посещаемости: " + statistics.getTimeOfPeakVisitPerSecond());
+                System.out.println("Список сайтов, cо ссылкой на текущий сайт: " + statistics.getRefererDomains());
+                System.out.println("Максимальное количество посещений: " + statistics.getCountVisitPerUser() + " от пользователя с IP-адресом: " + statistics.getIpOfVisitingUser());
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
