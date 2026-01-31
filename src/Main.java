@@ -1,9 +1,6 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
@@ -50,13 +47,9 @@ public class Main {
                 System.out.println("Среднее количество посещений пользователями: " + statistics.getAvgUsersVisitsCount());
                 System.out.println("Среднее количество ошибочных запросов: " + statistics.getAvgErrorRequestCount());
                 System.out.println("Средняя посещаемость одним пользователем: " + statistics.getAvgVisitByUser());
-                Map.Entry<Integer, Integer> peakVisitEntry = statistics.getPeakVisitPerSecond();
-                int peakEntry = peakVisitEntry.getValue();
-                LocalDateTime peakTime = LocalDateTime.ofEpochSecond(peakVisitEntry.getKey(), 0, ZoneOffset.of("+03:00"));
-                System.out.println("Пиковая посещаемость в секунду: " + peakEntry + ", время пиковой посещаемости: " + peakTime);
-                System.out.println("Список сайтов, cо ссылкой на текущий сайт: " + statistics.getDomainNameList());
-                Map.Entry<String, Integer> maxVisitEntry = statistics.getMaxVisitPerUser();
-                System.out.println("Максимальное количество посещений: " + maxVisitEntry.getValue() + " от пользователя с IP-адресом: " + maxVisitEntry.getKey());
+                System.out.println("Пиковая посещаемость в секунду: " + statistics.getCountOfPeakVisitPerSecond() + ", время пиковой посещаемости: " + statistics.getTimeOfPeakVisitPerSecond());
+                System.out.println("Список сайтов, cо ссылкой на текущий сайт: " + statistics.getRefererDomains());
+                System.out.println("Максимальное количество посещений: " + statistics.getCountVisitPerUser() + " от пользователя с IP-адресом: " + statistics.getIpOfVisitingUser());
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }

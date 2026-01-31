@@ -1,8 +1,8 @@
 public class UserAgent {
 
-    OsType osType;
-    BrowserType browserType;
-    boolean isBot;
+    private final OsType osType;
+    private final BrowserType browserType;
+    private final boolean isBot;
 
     public UserAgent(String userAgent) {
         this.osType = parseOsType(userAgent);

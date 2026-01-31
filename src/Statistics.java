@@ -1,6 +1,7 @@
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -16,7 +17,7 @@ public class Statistics {
     private final HashSet<String> notExistPages = new HashSet<>();
     private final HashSet<String> realUserIpAddrList = new HashSet<>();
     private int realUserVisitCount;
-    private final HashSet<String> domainNameList = new HashSet<>();
+    private final HashSet<String> refererDomainList = new HashSet<>();
     private final HashMap<String, Integer> osCount = new HashMap<>();
     private final HashMap<String, Integer> browserCount = new HashMap<>();
     private final HashMap<Integer, Integer> realUserVisitCountPerSecond = new HashMap<>();
@@ -104,7 +105,7 @@ public class Statistics {
     }
 
     private void updateRealUserMetrics(LogEntry logEntry) {
-        if (!logEntry.getUserAgent().isBot) {
+        if (logEntry.getUserAgent().isBot()) {
             realUserVisitCount++;
             realUserIpAddrList.add(logEntry.getIpAddr());
             updateRealUserVisitCountPerSecond(logEntry.getDateTime());
@@ -142,8 +143,16 @@ public class Statistics {
         return Double.parseDouble(String.format(Locale.US, "%.3f", avgVisitByUser));
     }
 
-    public Map.Entry<Integer, Integer> getPeakVisitPerSecond() {
+    private Map.Entry<Integer, Integer> getTimeOfPeakVisitAndCountOfPeakVisitPerSecond() {
         return realUserVisitCountPerSecond.entrySet().stream().max(Map.Entry.comparingByValue()).orElse(null);
+    }
+
+    public LocalDateTime getTimeOfPeakVisitPerSecond() {
+        return LocalDateTime.ofEpochSecond(getTimeOfPeakVisitAndCountOfPeakVisitPerSecond().getKey(), 0, ZoneOffset.of("+03:00"));
+    }
+
+    public int getCountOfPeakVisitPerSecond() {
+        return getTimeOfPeakVisitAndCountOfPeakVisitPerSecond().getValue();
     }
 
     private String extractDomainName(String url) {
@@ -159,16 +168,24 @@ public class Statistics {
         if (!referer.equals("-")) {
             String domainName = extractDomainName(referer);
             if (domainName != null) {
-                domainNameList.add(domainName);
+                refererDomainList.add(domainName);
             }
         }
     }
 
-    public HashSet<String> getDomainNameList() {
-        return domainNameList;
+    public HashSet<String> getRefererDomains() {
+        return refererDomainList;
     }
 
-    public Map.Entry<String, Integer> getMaxVisitPerUser() {
+    private Map.Entry<String, Integer> getIpOfUserAndCountOfVisitPerUser() {
         return realUserVisitCountPerUser.entrySet().stream().max(Map.Entry.comparingByValue()).orElse(null);
+    }
+
+    public String getIpOfVisitingUser() {
+        return getIpOfUserAndCountOfVisitPerUser().getKey();
+    }
+
+    public Integer getCountVisitPerUser() {
+        return getIpOfUserAndCountOfVisitPerUser().getValue();
     }
 }
